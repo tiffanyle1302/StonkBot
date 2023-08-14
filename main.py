@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from discord.ext import commands
 
 
-# TODO: Get polygon set up correctly
 
 """Discord Bot Set-Up with Intents"""
 load_dotenv() #load API key
@@ -22,6 +21,12 @@ bot = commands.Bot(command_prefix='?', intents=intents)
 POLYGON_TOKEN = str(os.environ.get("POLYGON_TOKEN"))
 client = RESTClient(api_key = POLYGON_TOKEN)
 
+def extract_parameters(input_string):
+    """Removes Aggs(), and only returns the needed info"""
+    start_index = input_string.find("(") + 1
+    end_index = input_string.rfind(")")
+    parameters = input_string[start_index:end_index]
+    return parameters
 
 def retrieving_aggs(stock: str, day: str):
     """Get Aggregate Data in the form of a string"""
@@ -32,10 +37,13 @@ def retrieving_aggs(stock: str, day: str):
         from_ = day,
         to = day,
     )
-    return aggs[0]
+    whole_data = str(aggs[0])
+    clean = extract_parameters(whole_data)
+    return clean
     
 
 def test_run():
+    """test function of retrieving aggs"""
     aggs = client.get_aggs(
        "AAPL",
         1,
@@ -52,7 +60,7 @@ async def on_ready():
     """Prints message that it's online"""
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
 
-
+"""etc."""
 @bot.command()
 async def test(ctx, arg):
     """test command to check bot replies back"""
@@ -64,11 +72,17 @@ async def add(ctx, a: int, b: int):
     """test bot ability to reply with correct computations"""
     await ctx.send(a + b)
 
+
+
+"""Business related"""
 @bot.command()
 async def daggs(ctx, stock: str, day: str): #day has to be formatted as YYYY-MM-DD
     """Get aggregates data of stocks within the day of request"""
     output = retrieving_aggs(stock, day)
     await ctx.send(output)
+
+
+
     
 
 
