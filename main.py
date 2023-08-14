@@ -28,7 +28,21 @@ def extract_parameters(input_string):
     parameters = input_string[start_index:end_index]
     return parameters
 
-def retrieving_aggs(stock: str, day: str):
+def get_crypto_aggs(crypto: str, day: str):
+    """Get Aggregate Data in the form of a string"""
+    aggs = client.get_aggs(
+        ticker = crypto,
+        multiplier = 1,
+        timespan = "day",
+        from_ = day,
+        to = day,
+    )
+    whole_data = str(aggs[0])
+    clean = extract_parameters(whole_data)
+    return clean
+
+
+def get_stock_aggs(stock: str, day: str):
     """Get Aggregate Data in the form of a string"""
     aggs = client.get_aggs(
         ticker = stock,
@@ -60,7 +74,6 @@ async def on_ready():
     """Prints message that it's online"""
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
 
-"""etc."""
 @bot.command()
 async def test(ctx, arg):
     """test command to check bot replies back"""
@@ -74,13 +87,18 @@ async def add(ctx, a: int, b: int):
 
 
 
-"""Business related"""
+"""Business related commands"""
 @bot.command()
 async def daggs(ctx, stock: str, day: str): #day has to be formatted as YYYY-MM-DD
     """Get aggregates data of stocks within the day of request"""
-    output = retrieving_aggs(stock, day)
+    output = get_stock_aggs(stock, day)
     await ctx.send(output)
 
+@bot.command
+async def cryaggs(ctx, crypto: str, day: str):
+    """Get aggregate data of crypto for the requested day"""
+    output = get_crypto_aggs(crypto, day)
+    await ctx.send(output)
 
 
     
