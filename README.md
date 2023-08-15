@@ -7,8 +7,8 @@ Stonk Bot is a Discord bot designed to provide users stock market and crypto cur
 All Commands have the prefix '?'
 
 **Finance Commands**
-- **?daggs <stock> <date: YYYY-MM-DD>**: Get aggregates data of stocks for the requested day. ***Note: date needs to be formatted as YYYY-MM-DD***
-- **?cryaggs <crypto> <date: YYYY-MM-DD>**: Get aggregate data of crypto for the requested day. ***Note: date needs to be formatted as YYYY-MM-DD***
+- **?daggs <stock> <date: YYYY-MM-DD>**: Get aggregates data of stocks for the requested day. *Note: date needs to be formatted as YYYY-MM-DD*
+- **?cryaggs <crypto> <date: YYYY-MM-DD>**: Get aggregate data of crypto for the requested day. *Note: date needs to be formatted as YYYY-MM-DD*
 
 **Testing and Fun Bot Commands**
 - **?test <statement>**: Test command to check bot replies back.
