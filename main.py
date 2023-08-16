@@ -118,8 +118,20 @@ async def cryaggs(ctx, crypto: str, day: str):
     await ctx.send(output)
 
 #TODO: make specific aggs
-@bot.command
-async def 
+@bot.command()
+async def dspecific(ctx, stock: str, multiplier: int, timespan: str, begin_date: str, end_date: str):
+    """Get aggregate data for stock for a certain time range"""
+    aggs = client.get_aggs(
+        ticker = stock,
+        multiplier = multiplier,
+        timespan = timespan,
+        from_ = begin_date,
+        to = end_date,
+        limit = 10
+    )
+    for i in aggs:
+        await ctx.send(extract_parameters(str(i)))
+
 
 """Error Handling for commands"""
 @test.error
