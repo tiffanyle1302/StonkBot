@@ -23,7 +23,7 @@ POLYGON_TOKEN = str(os.environ.get("POLYGON_TOKEN"))
 client = RESTClient(api_key = POLYGON_TOKEN)
 
 def extract_parameters(input_string):
-    """Removes Aggs(), and only returns the needed info"""
+    """Removes Prefix(), and only returns the needed info"""
     start_index = input_string.find("(") + 1
     end_index = input_string.rfind(")")
     parameters = input_string[start_index:end_index]
@@ -31,32 +31,24 @@ def extract_parameters(input_string):
 
 def get_crypto_aggs(crypto: str, day: str):
     """Get Aggregate Data in the form of a string"""
-    aggs = client.get_aggs(
+    aggs = client.get_daily_open_close_agg(
         ticker = crypto,
-        multiplier = 1,
-        timespan = "day",
-        from_ = day,
-        to = day,
+        date = day,
     )
-    whole_data = str(aggs[0])
+    whole_data = str(aggs)
     clean = extract_parameters(whole_data)
     return clean
-
 
 def get_stock_aggs(stock: str, day: str):
     """Get Aggregate Data in the form of a string"""
-    aggs = client.get_aggs(
+    aggs = client.get_daily_open_close_agg(
         ticker = stock,
-        multiplier = 1,
-        timespan = "day",
-        from_ = day,
-        to = day,
+        date = day,
     )
-    whole_data = str(aggs[0])
+    whole_data = str(aggs)
     clean = extract_parameters(whole_data)
     return clean
     
-
 def test_run():
     """test function of retrieving aggs"""
     aggs = client.get_aggs(
@@ -73,7 +65,9 @@ class HelpSetUp(commands.MinimalHelpCommand):
     """Sets up the help page"""
     async def send_pages(self):
         destination = self.get_destination()
-        emby = discord.Embed(title = "Help", description = "Use ?help [name] to get a detail info on the specific command", colour = discord.Color.random())
+        emby = discord.Embed(title = "Help", 
+                             description = "Use ?help [name] to get a detail info on the specific command", 
+                             colour = discord.Color.random())
         emby.add_field(name = "Business Commands", value = "daggs, cryaggs")
         emby.add_field(name = "Fun and Test Commands", value = "test, add")
         await destination.send(embed = emby)
@@ -113,17 +107,19 @@ async def add(ctx, a: int, b: int):
 """Business related commands"""
 @bot.command()
 async def daggs(ctx, stock: str, date: str): #day has to be formatted as YYYY-MM-DD
-    """Get aggregates data of stocks for the requested day. ***Note: date needs to be formatted as YYYY-MM-DD***"""
+    """Get aggregates data of stocks for the requested day. **Note: date needs to be formatted as YYYY-MM-DD**"""
     output = get_stock_aggs(stock, date)
     await ctx.send(output)
 
 @bot.command()
 async def cryaggs(ctx, crypto: str, day: str):
-    """Get aggregate data of crypto for the requested day. ***Note: date needs to be formatted as YYYY-MM-DD***"""
+    """Get aggregate data of crypto for the requested day. **Note: date needs to be formatted as YYYY-MM-DD**"""
     output = get_crypto_aggs(crypto, day)
     await ctx.send(output)
 
-
+#TODO: make specific aggs
+@bot.command
+async def 
 
 """Error Handling for commands"""
 @test.error
