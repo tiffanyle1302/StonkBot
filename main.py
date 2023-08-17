@@ -1,5 +1,6 @@
 """Needed imports for functions"""
 import os
+import re
 import logging
 import logging.handlers
 import discord
@@ -31,6 +32,10 @@ def extract_parameters(input_string):
 
 def get_crypto_aggs(crypto: str, day: str):
     """Get Aggregate Data in the form of a string"""
+    if not crypto.startswith("X:"):
+        crypto = "X:" + crypto
+    if not crypto.endswith("USD"):
+        crypto = crypto + "USD"
     aggs = client.get_daily_open_close_agg(
         ticker = crypto,
         date = day,
