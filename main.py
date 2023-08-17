@@ -1,5 +1,6 @@
 """Needed imports for functions"""
 import os
+import re
 import logging
 import logging.handlers
 import discord
@@ -31,6 +32,10 @@ def extract_parameters(input_string):
 
 def get_crypto_aggs(crypto: str, day: str):
     """Get Aggregate Data in the form of a string"""
+    if not crypto.startswith("X:"):
+        crypto = "X:" + crypto
+    if not crypto.endswith("USD"):
+        crypto = crypto + "USD"
     aggs = client.get_daily_open_close_agg(
         ticker = crypto,
         date = day,
@@ -48,17 +53,6 @@ def get_stock_aggs(stock: str, day: str):
     whole_data = str(aggs)
     clean = extract_parameters(whole_data)
     return clean
-    
-def test_run():
-    """test function of retrieving aggs"""
-    aggs = client.get_aggs(
-       "AAPL",
-        1,
-        "day",
-        "2022-04-04",
-        "2022-04-04",
-    )
-    return str(aggs[0])
 
 """Help Command Set Up"""
 class HelpSetUp(commands.MinimalHelpCommand):
@@ -107,19 +101,33 @@ async def add(ctx, a: int, b: int):
 """Business related commands"""
 @bot.command()
 async def daggs(ctx, stock: str, date: str): #day has to be formatted as YYYY-MM-DD
-    """Get aggregates data of stocks for the requested day. **Note: date needs to be formatted as YYYY-MM-DD**"""
+    """Get aggregates data of stocks for the requested day. 
+    **Note: date needs to be formatted as YYYY-MM-DD and the date can't be today**"""
     output = get_stock_aggs(stock, date)
     await ctx.send(output)
 
 @bot.command()
 async def cryaggs(ctx, crypto: str, day: str):
-    """Get aggregate data of crypto for the requested day. **Note: date needs to be formatted as YYYY-MM-DD**"""
+    """Get aggregate data of crypto for the requested day. 
+    **Note: date needs to be formatted as YYYY-MM-DD and the date can't be today**"""
     output = get_crypto_aggs(crypto, day)
     await ctx.send(output)
 
-#TODO: make specific aggs
-@bot.command
-async def 
+@bot.command()
+async def dspecific(ctx, stock: str, multiplier: int, timespan: str, begin_date: str, end_date: str):
+    """Get aggregate data for stock for a certain time range. 
+    **Note: date needs to be formatted as YYYY-MM-DD and the date can't be today**"""
+    aggs = client.get_aggs(
+        ticker = stock,
+        multiplier = multiplier,
+        timespan = timespan,
+        from_ = begin_date,
+        to = end_date,
+        limit = 5  # !limit set to 5 so it doesn't overload polygon API or flood the discord server
+    )
+    for i in aggs:
+        await ctx.send(extract_parameters(str(i)))
+
 
 """Error Handling for commands"""
 @test.error
@@ -145,6 +153,14 @@ async def daggs_error(ctx, error):
 @cryaggs.error
 async def cryaggs_error(ctx, error):
     """Throws error for ?cryaggs"""
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.reply("I'm missing parameters. Use ?help for clarification.")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.reply("Unable to get data on date or date is in a incorrect format. Use ?help for clarification.")
+
+@dspecific.error
+async def dspecific_error(ctx, error):
+    """Throws error for ?dspecific"""
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.reply("I'm missing parameters. Use ?help for clarification.")
     elif isinstance(error, commands.BadArgument):
