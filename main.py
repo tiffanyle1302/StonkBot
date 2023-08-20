@@ -1,6 +1,5 @@
 """Needed imports for functions"""
 import os
-import re
 import logging
 import logging.handlers
 import discord
